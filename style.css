@@ -5,18 +5,14 @@
   --glass: rgba(255, 255, 255, 0.05);
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   width: 100vw;
   height: 100vh;
   background-color: var(--bg);
   color: white;
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
   overflow: hidden;
 }
 
@@ -42,7 +38,6 @@ header h1 {
   color: #888;
   max-width: 300px;
   margin-bottom: 30px;
-  line-height: 1.4;
 }
 
 .setup-card {
@@ -55,13 +50,6 @@ header h1 {
   max-width: 350px;
 }
 
-label {
-  display: block;
-  margin-bottom: 10px;
-  font-size: 0.9rem;
-  color: #ccc;
-}
-
 select {
   width: 100%;
   padding: 15px;
@@ -71,7 +59,6 @@ select {
   border-radius: 12px;
   font-size: 1rem;
   margin-bottom: 20px;
-  outline: none;
 }
 
 #scanBtn {
@@ -84,11 +71,6 @@ select {
   font-weight: bold;
   font-size: 1.1rem;
   cursor: pointer;
-  transition: transform 0.2s;
-}
-
-#scanBtn:active {
-  transform: scale(0.95);
 }
 
 #scanner-container {
@@ -98,11 +80,7 @@ select {
   z-index: 100;
 }
 
-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+video { width: 100%; height: 100%; object-fit: cover; }
 
 #overlay {
   position: absolute;
@@ -111,28 +89,27 @@ video {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
 }
 
 #guide-box {
   width: 85%;
-  height: 80px;
+  height: 100px;
   position: relative;
   box-shadow: 0 0 0 5000px rgba(0, 0, 0, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
 }
 
 .corner {
   position: absolute;
-  width: 20px;
-  height: 20px;
-  border: 3px solid var(--neon);
+  width: 25px;
+  height: 25px;
+  border: 4px solid var(--neon);
 }
-.tl { top: -3px; left: -3px; border-right: none; border-bottom: none; }
-.tr { top: -3px; right: -3px; border-left: none; border-bottom: none; }
-.bl { bottom: -3px; left: -3px; border-right: none; border-top: none; }
-.br { bottom: -3px; right: -3px; border-left: none; border-top: none; }
+.tl { top: -4px; left: -4px; border-right: none; border-bottom: none; }
+.tr { top: -4px; right: -4px; border-left: none; border-bottom: none; }
+.bl { bottom: -4px; left: -4px; border-right: none; border-top: none; }
+.br { bottom: -4px; right: -4px; border-left: none; border-top: none; }
 
 .scan-line {
   width: 100%;
@@ -141,21 +118,21 @@ video {
   position: absolute;
   top: 0;
   box-shadow: 0 0 15px var(--neon);
-  animation: scanAnim 2s infinite ease-in-out;
+  animation: scanAnim 2s infinite linear;
 }
 
 @keyframes scanAnim {
-  0%, 100% { top: 0%; }
-  50% { top: 100%; }
+  0% { top: 0%; }
+  100% { top: 100%; }
 }
 
 #status-msg {
-  margin-top: 25px;
-  font-size: 0.9rem;
-  background: rgba(0,0,0,0.6);
-  padding: 5px 15px;
+  margin-top: 30px;
+  background: rgba(0,0,0,0.8);
+  padding: 8px 20px;
   border-radius: 20px;
   border: 1px solid var(--neon);
+  font-size: 0.9rem;
 }
 
 #closeBtn {
@@ -168,18 +145,13 @@ video {
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  font-size: 1.2rem;
-  cursor: pointer;
   z-index: 110;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 #custom-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.95);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -195,30 +167,6 @@ video {
   max-width: 400px;
   text-align: center;
   border: 2px solid var(--neon);
-  box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
-}
-
-#modal-title {
-  margin-bottom: 15px;
-  font-size: 1.5rem;
-  text-transform: uppercase;
-}
-
-#modal-text {
-  font-size: 1.2rem;
-  margin-bottom: 10px;
-  line-height: 1.5;
-}
-
-.modal-instruction {
-  font-size: 0.8rem;
-  color: var(--neon);
-  margin-bottom: 25px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  padding: 10px;
-  background: rgba(0, 255, 136, 0.1);
-  border-radius: 8px;
 }
 
 #modal-close {
@@ -228,12 +176,8 @@ video {
   padding: 15px;
   border-radius: 12px;
   font-weight: bold;
-  font-size: 1rem;
   width: 100%;
-  cursor: pointer;
+  margin-top: 20px;
 }
 
-[hidden] {
-  display: none !important;
-}
-
+[hidden] { display: none !important; }
