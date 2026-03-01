@@ -73,9 +73,23 @@ async function iniciarCamara() {
 }
 
 function capturarImagen() {
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  ctx.drawImage(video, 0, 0);
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+
+  // 🔥 SOLO LA FRANJA SUPERIOR
+  const cropX = 0;
+  const cropY = 0;
+  const cropW = vw;
+  const cropH = Math.floor(vh * 0.25);
+
+  canvas.width = cropW;
+  canvas.height = cropH;
+
+  ctx.drawImage(
+    video,
+    cropX, cropY, cropW, cropH,
+    0, 0, cropW, cropH
+  );
 
   video.srcObject.getTracks().forEach(track => track.stop());
   video.hidden = true;
@@ -86,11 +100,11 @@ function capturarImagen() {
 
 function preprocesarImagen() {
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imageData.data;
+  const d = imageData.data;
 
-  for (let i = 0; i < data.length; i += 4) {
-    const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-    data[i] = data[i + 1] = data[i + 2] = gray;
+  for (let i = 0; i < d.length; i += 4) {
+    const gray = d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
+    d[i] = d[i+1] = d[i+2] = gray;
   }
 
   ctx.putImageData(imageData, 0, 0);
@@ -108,23 +122,25 @@ async function reconocerTexto() {
     }
   );
 
+  console.log("OCR RAW:", data.text);
+
   const limpio = data.text
-    .replace(/\s/g, "")
+    .replace(/\n/g, " ")
+    .replace(/\s+/g, " ")
     .toUpperCase();
 
-  console.log("OCR RAW:", data.text);
   console.log("OCR LIMPIO:", limpio);
 
-  // 9 números + letra
-  const match = limpio.match(/\d{9}[A-Z]/);
+  const match = limpio.match(/(\d{9})\s*([A-Z])/);
 
   if (!match) {
-    alert("❌ No se detectó la serie.\nIntenta acercar más la cámara.");
+    alert("❌ No se detectó la serie.\nAcerque más el billete.");
     resetear();
     return;
   }
 
-  preguntarBillete(match[0]);
+  const serie = match[1] + match[2];
+  preguntarBillete(serie);
 }
 
 function preguntarBillete(serie) {
@@ -163,4 +179,5 @@ function validarSerie(serie, billete) {
 function resetear() {
   scanBtn.hidden = false;
 }
+
 
