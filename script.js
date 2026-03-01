@@ -89,9 +89,8 @@ function preprocesarImagen() {
   const data = imageData.data;
 
   for (let i = 0; i < data.length; i += 4) {
-    const gray = data[i] * 0.3 + data[i + 1] * 0.59 + data[i + 2] * 0.11;
-    const bin = gray > 150 ? 255 : 0;
-    data[i] = data[i + 1] = data[i + 2] = bin;
+    const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+    data[i] = data[i + 1] = data[i + 2] = gray;
   }
 
   ctx.putImageData(imageData, 0, 0);
@@ -99,20 +98,28 @@ function preprocesarImagen() {
 }
 
 async function reconocerTexto() {
-  const { data: { text } } = await Tesseract.recognize(
+  const { data } = await Tesseract.recognize(
     canvas,
     "eng",
     {
-      tessedit_char_whitelist: "0123456789B",
-      logger: () => {}
+      logger: () => {},
+      tessedit_char_whitelist: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      preserve_interword_spaces: "1"
     }
   );
 
-  const limpio = text.replace(/\s/g, "").toUpperCase();
-  const match = limpio.match(/\d{8,9}B/);
+  const limpio = data.text
+    .replace(/\s/g, "")
+    .toUpperCase();
+
+  console.log("OCR RAW:", data.text);
+  console.log("OCR LIMPIO:", limpio);
+
+  // 9 números + letra
+  const match = limpio.match(/\d{9}[A-Z]/);
 
   if (!match) {
-    alert("❌ No se detectó el número de serie");
+    alert("❌ No se detectó la serie.\nIntenta acercar más la cámara.");
     resetear();
     return;
   }
@@ -156,3 +163,4 @@ function validarSerie(serie, billete) {
 function resetear() {
   scanBtn.hidden = false;
 }
+
