@@ -10,7 +10,7 @@ const rangos = {
 };
 
 let scanning = false;
-let votos = {}; 
+let historialLecturas = []; 
 
 document.getElementById("scanBtn").onclick = async () => {
   try {
@@ -21,68 +21,72 @@ document.getElementById("scanBtn").onclick = async () => {
     document.getElementById("main-ui").hidden = true;
     document.getElementById("scanner-container").hidden = false;
     scanning = true;
-    procesar();
-  } catch (e) { alert("Error al iniciar cámara."); }
+    procesarEscaneo();
+  } catch (e) { alert("Error de cámara."); }
 };
 
-async function procesar() {
+async function procesarEscaneo() {
   if (!scanning) return;
 
   const vW = video.videoWidth;
   const vH = video.videoHeight;
   
-  // Canvas más ancho para no cortar el primer dígito
-  canvas.width = 800; 
-  canvas.height = 150;
+  // Aumentamos el tamaño del canvas para que los números sean grandes para la IA
+  canvas.width = 900; 
+  canvas.height = 180;
 
-  // Tomamos un área un poco más amplia para asegurar que el primer dígito entre
-  ctx.drawImage(video, vW * 0.1, vH * 0.4, vW * 0.8, vH * 0.2, 0, 0, 800, 150);
+  // Dibujamos con un margen extra a la izquierda para NO perder el primer dígito
+  ctx.drawImage(video, vW * 0.05, vH * 0.4, vW * 0.9, vH * 0.2, 0, 0, 900, 180);
 
-  // Procesamiento de imagen para resaltar texto negro sobre fondo de billete
-  let imgData = ctx.getImageData(0, 0, 800, 150);
+  // --- FILTRO DE ALTA DEFINICIÓN ---
+  let imgData = ctx.getImageData(0, 0, 900, 180);
   let d = imgData.data;
   for (let i = 0; i < d.length; i += 4) {
-    let brightness = (d[i] + d[i+1] + d[i+2]) / 3;
-    // Umbral más bajo para capturar dígitos delgados iniciales
-    let b = brightness < 110 ? 0 : 255; 
-    d[i] = d[i+1] = d[i+2] = b;
+    // Calculamos el brillo pero le damos peso al canal rojo (los billetes de 20 son rojos)
+    // para ignorar el fondo y detectar solo la tinta negra.
+    let brightness = (d[i] * 0.2 + d[i+1] * 0.7 + d[i+2] * 0.1);
+    let v = brightness < 115 ? 0 : 255; // Tinta negra -> 0, Fondo -> 255
+    d[i] = d[i+1] = d[i+2] = v;
   }
   ctx.putImageData(imgData, 0, 0);
 
+  // Usamos Tesseract con el motor más moderno (LSTM) y whitelist
   const { data: { text } } = await Tesseract.recognize(canvas, 'eng', {
-    tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    tessedit_char_whitelist: '0123456789AB',
+    tessedit_pageseg_mode: '7' // Tratar la imagen como una sola línea de texto
   });
 
-  const limpio = text.replace(/[^0-9A-Z]/g, "");
+  const limpio = text.toUpperCase().replace(/[^0-9AB]/g, "");
   
-  // EXPRESIÓN REGULAR ESTRICTA: 9 números seguidos de 1 letra A o B
+  // Expresión regular que obliga a tener exactamente 9 números y una letra
   const match = limpio.match(/(\d{9})([AB])/);
 
   if (match) {
-    const serieEncontrada = match[1] + match[2];
-    votos[serieEncontrada] = (votos[serieEncontrada] || 0) + 1;
-    
-    statusMsg.innerText = `Serie detectada: ${serieEncontrada} (${votos[serieEncontrada]}/2)`;
+    const serie = match[1] + match[2];
+    historialLecturas.push(serie);
+    statusMsg.innerText = `Validando serie: ${serie}`;
 
-    if (votos[serieEncontrada] >= 2) {
-      verificarIlegalidad(serieEncontrada, parseInt(match[1]), match[2]);
+    // Si la misma serie aparece 2 veces en el historial de frames, la damos por válida
+    const coincidencias = historialLecturas.filter(s => s === serie).length;
+    if (coincidencias >= 2) {
+      verificarBaseDeDatos(serie, parseInt(match[1]), match[2]);
       return;
     }
-  } else {
-    // Si detecta algo pero no tiene 9 dígitos, damos una pista visual
-    if (limpio.length > 0) statusMsg.innerText = "Alinee mejor el primer dígito...";
   }
 
-  setTimeout(procesar, 400);
+  // Si el historial crece mucho y no hay coincidencias, lo limpiamos para no saturar
+  if (historialLecturas.length > 10) historialLecturas.shift();
+
+  setTimeout(procesarEscaneo, 250);
 }
 
-function verificarIlegalidad(serie, num, letra) {
+function verificarBaseDeDatos(serie, num, letra) {
   scanning = false;
   const denom = document.getElementById("denominacion").value;
   let esIlegal = (letra === "B") && rangos[denom].some(([min, max]) => num >= min && num <= max);
 
-  if (navigator.vibrate) navigator.vibrate(300);
+  if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
 
-  alert(`${esIlegal ? '⚠️ SERIE INVÁLIDA (ILEGAL)' : '✅ SERIE VÁLIDA'}\n\nSerie: ${serie}\nDenominación: Bs. ${denom}`);
+  alert(`${esIlegal ? '⚠️ SERIE REGISTRADA COMO ILEGAL' : '✅ SERIE SIN REPORTES'}\n\nSerie detectada: ${serie}\nValor: Bs. ${denom}`);
   location.reload();
 }
