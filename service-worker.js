@@ -1,8 +1,8 @@
-const CACHE_NAME = "v2-detector";
-const ASSETS = ["./", "./index.html", "./style.css", "./script.js", "./manifest.json"];
+const CACHE = "v2-detector";
+const ASSETS = ["./", "./index.html", "./style.css", "./script.js", "./manifest.json", "./donaciones.jpg"];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(ASSETS)));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
 });
 
 self.addEventListener("fetch", (e) => {
