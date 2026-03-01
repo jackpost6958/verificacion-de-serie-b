@@ -1,59 +1,33 @@
-:root { --neon: #00ff88; --bg: #0f0f0f; }
+:root { --neon: #00ff88; --bg: #0a0a0a; }
 
-body { 
-  margin: 0; background: var(--bg); color: white; 
-  font-family: 'Segoe UI', Roboto, sans-serif; 
-}
+body { margin: 0; background: var(--bg); color: white; font-family: sans-serif; overflow: hidden; }
 
-#main-ui { padding: 40px 20px; }
-header h1 { font-size: 1.5rem; color: var(--neon); margin-bottom: 5px; }
-.disclaimer { font-size: 0.75rem; color: #888; margin-bottom: 30px; }
+#main-ui { padding: 40px 20px; text-align: center; }
+.disclaimer { font-size: 0.7rem; color: #777; margin: 15px 0 30px; line-height: 1.3; }
 
-.setup-card {
-  background: #1e1e1e; padding: 25px; border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-
-select, #scanBtn {
-  width: 100%; padding: 15px; margin-top: 10px;
-  border-radius: 12px; border: none; font-size: 1rem;
-}
-
-#scanBtn {
-  background: var(--neon); color: black; font-weight: bold;
-  cursor: pointer; margin-top: 20px; transition: 0.3s;
-}
+.setup-card { background: #1a1a1a; padding: 25px; border-radius: 20px; border: 1px solid #333; }
+select, #scanBtn { width: 100%; padding: 15px; margin-top: 10px; border-radius: 12px; border: none; font-size: 1rem; }
+#scanBtn { background: var(--neon); color: black; font-weight: bold; cursor: pointer; margin-top: 20px; }
 
 /* Escáner Fullscreen */
-#scanner-container {
-  position: fixed; inset: 0; background: black; z-index: 100;
+#scanner-container { position: fixed; inset: 0; background: black; z-index: 100; }
+#video { width: 100%; height: 100%; object-fit: cover; }
+
+#overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+
+#guide-box { 
+  width: 85%; height: 75px; position: relative;
+  box-shadow: 0 0 0 5000px rgba(0,0,0,0.7); /* Oscurece el resto */
 }
 
-#guide-box {
-  width: 85%; height: 70px; border: 1px solid rgba(255,255,255,0.3);
-  position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 1000px rgba(0,0,0,0.7);
-}
+.corner { position: absolute; width: 15px; height: 15px; border: 3px solid var(--neon); }
+.tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+.tr { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+.bl { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+.br { bottom: -2px; right: -2px; border-left: none; border-top: none; }
 
-.corner { position: absolute; width: 20px; height: 20px; border: 4px solid var(--neon); }
-.tl { top: -4px; left: -4px; border-right: none; border-bottom: none; }
-.tr { top: -4px; right: -4px; border-left: none; border-bottom: none; }
-.bl { bottom: -4px; left: -4px; border-right: none; border-top: none; }
-.br { bottom: -4px; right: -4px; border-left: none; border-top: none; }
+.scan-line { width: 100%; height: 2px; background: var(--neon); position: absolute; top: 0; animation: scan 2s infinite linear; box-shadow: 0 0 10px var(--neon); }
 
-.scan-line {
-  width: 100%; height: 2px; background: var(--neon);
-  position: absolute; top: 0; animation: scan 2s infinite ease-in-out;
-  box-shadow: 0 0 15px var(--neon);
-}
+@keyframes scan { 0%, 100% { top: 0; } 50% { top: 100%; } }
 
-@keyframes scan { 
-  0%, 100% { top: 0%; } 
-  50% { top: 100%; } 
-}
-
-#closeBtn {
-  position: absolute; top: 20px; right: 20px;
-  background: rgba(255,255,255,0.2); border: none;
-  color: white; padding: 10px 15px; border-radius: 50%;
-}
+#closeBtn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 12px; border-radius: 50%; cursor: pointer; pointer-events: auto; }
