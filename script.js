@@ -76,11 +76,11 @@ function capturarImagen() {
   const vw = video.videoWidth;
   const vh = video.videoHeight;
 
-  // 🔥 SOLO LA FRANJA SUPERIOR
-  const cropX = 0;
-  const cropY = 0;
-  const cropW = vw;
-  const cropH = Math.floor(vh * 0.25);
+  // 🔥 MISMAS PROPORCIONES QUE EL CSS
+  const cropX = vw * 0.1;        // 10% margen izquierdo
+  const cropY = vh * 0.12;       // 12% desde arriba
+  const cropW = vw * 0.8;        // 80% ancho
+  const cropH = vh * 0.12;       // altura del marco
 
   canvas.width = cropW;
   canvas.height = cropH;
@@ -184,6 +184,7 @@ function validarSerie(serie, billete) {
 function resetear() {
   scanBtn.hidden = false;
 }
+
 
 
 
