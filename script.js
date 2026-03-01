@@ -95,24 +95,31 @@ function ejecutarVerificacion(serieFull, numero, letra) {
   scanning = false;
   const denominacion = document.getElementById("denominacion").value;
   
-  // Apagar Flash
   if (track && track.getCapabilities().torch) {
     track.applyConstraints({ advanced: [{ torch: false }] });
   }
 
-  // REGLA DE ORO: Solo es ilegal si es serie "B" y está en el rango
   let ilegal = false;
   if (letra === "B") {
     ilegal = baseDatosIlegal[denominacion].some(([min, max]) => numero >= min && numero <= max);
   }
 
+  // MOSTRAR MODAL EN LUGAR DE ALERT
+  const modal = document.getElementById("custom-modal");
+  const mTitle = document.getElementById("modal-title");
+  const mText = document.getElementById("modal-text");
+
+  mTitle.innerText = ilegal ? "⚠️ SERIE NO VÁLIDA" : "✅ SERIE VÁLIDA";
+  mTitle.style.color = ilegal ? "#ff4444" : "#00ff88";
+  mText.innerHTML = `Detectado: <strong>${serieFull}</strong><br>Billete de Bs. ${denominacion}`;
+  
+  modal.hidden = false;
+
   if (navigator.vibrate) navigator.vibrate(ilegal ? [200, 100, 200] : 100);
 
-  const mensaje = ilegal 
-    ? `⚠️ BILLETE NO VÁLIDO\n\nSerie: ${serieFull}\nEste billete pertenece a una serie reportada como ilegal.`
-    : `✅ BILLETE VÁLIDO\n\nSerie: ${serieFull}\nEsta serie es legal y no presenta reportes de falsificación.`;
-
-  alert(mensaje);
-  location.reload();
+  document.getElementById("modal-close").onclick = () => {
+    location.reload(); // Recargar al cerrar para volver a escanear
+  };
 }
+
 
