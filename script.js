@@ -115,49 +115,54 @@ async function reconocerTexto() {
   const { data } = await Tesseract.recognize(
     canvas,
     "eng",
-    {
-      logger: () => {},
-      tessedit_char_whitelist: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-      preserve_interword_spaces: "1"
-    }
+    { logger: () => {} }
   );
 
   console.log("OCR RAW:", data.text);
 
-  const limpio = data.text
-    .replace(/\n/g, " ")
-    .replace(/\s+/g, " ")
-    .toUpperCase();
+  const limpio = normalizarTextoOCR(data.text);
 
-  console.log("OCR LIMPIO:", limpio);
+  console.log("OCR NORMALIZADO:", limpio);
 
-  const match = limpio.match(/(\d{9})\s*([A-Z])/);
+  // Buscar bloques largos de números
+  const numeros = limpio.match(/\d+/g) || [];
 
-  if (!match) {
-    alert("❌ No se detectó la serie.\nAcerque más el billete.");
+  // Buscar letra final
+  const letra = limpio.match(/[A-Z]/g)?.pop();
+
+  console.log("NUMEROS DETECTADOS:", numeros);
+  console.log("LETRA DETECTADA:", letra);
+
+  // Unir números hasta llegar a 9 dígitos
+  let serieNumerica = "";
+  for (const bloque of numeros) {
+    serieNumerica += bloque;
+    if (serieNumerica.length >= 9) break;
+  }
+
+  serieNumerica = serieNumerica.slice(0, 9);
+
+  if (serieNumerica.length !== 9 || !letra) {
+    alert("❌ No se detectó la serie.\nIntenta más cerca y recto.");
     resetear();
     return;
   }
 
-  const serie = match[1] + match[2];
-  preguntarBillete(serie);
+  const serieFinal = serieNumerica + letra;
+
+  console.log("SERIE FINAL:", serieFinal);
+
+  preguntarBillete(serieFinal);
 }
 
-function preguntarBillete(serie) {
-  const opcion = prompt(
-    `Serie detectada: ${serie}\n\n¿Billete de 10, 20 o 50?`
-  );
-
-  const billete = parseInt(opcion);
-  if (![10, 20, 50].includes(billete)) {
-    alert("❌ Billete inválido");
-    resetear();
-    return;
-  }
-
-  const valida = validarSerie(serie, billete);
-  alert(valida ? "✅ Serie verdadera" : "❌ Serie errónea");
-  resetear();
+function normalizarTextoOCR(texto) {
+  return texto
+    .toUpperCase()
+    .replace(/I/g, "1")
+    .replace(/O/g, "0")
+    .replace(/[^0-9A-Z ]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function estaEnRango(numero, rangos) {
@@ -179,5 +184,6 @@ function validarSerie(serie, billete) {
 function resetear() {
   scanBtn.hidden = false;
 }
+
 
 
