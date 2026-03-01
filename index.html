@@ -3,18 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Detector de Series Legales BOB</title>
+  <title>Detector de Series BOB</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00ff88">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
+  
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
   <div id="main-ui">
     <header>
-      <h1>Detector de Series Legales BOB</h1>
-      <p class="disclaimer">Uso informativo. No reemplaza plataformas oficiales.</p>
+      <h1>Detector de Billetes</h1>
+      <p class="disclaimer">Esta aplicación está en desarrollo y no es oficial, puede cometer errores. Use plataformas oficiales para dudas.</p>
     </header>
 
     <div class="setup-card">
-      <label for="denominacion">Selecciona el valor:</label>
+      <label for="denominacion">Denominación del Billete:</label>
       <select id="denominacion">
         <option value="10">Bs. 10</option>
         <option value="20" selected>Bs. 20</option>
@@ -25,7 +31,7 @@
   </div>
 
   <div id="scanner-container" hidden>
-    <video id="video" autoplay playsinline></video>
+    <video id="video" autoplay playsinline muted></video>
     <div id="overlay">
       <div id="guide-box">
         <div class="corner tl"></div><div class="corner tr"></div>
@@ -38,20 +44,15 @@
   </div>
 
   <canvas id="canvas" hidden></canvas>
+
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="script.js"></script>
-
-  <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#00ff88">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
-
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(() => console.log("Servicio de App registrado correctamente."))
-      .catch((err) => console.log("Error al registrar App:", err));
-  }
-</script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => console.log("PWA: Service Worker Activo"))
+        .catch(err => console.log("PWA: Error", err));
+    }
+  </script>
 </body>
 </html>
-
