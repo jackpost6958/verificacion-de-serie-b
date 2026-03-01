@@ -48,6 +48,7 @@ header h1 {
   border: 1px solid rgba(255, 255, 255, 0.1);
   width: 100%;
   max-width: 350px;
+  margin-bottom: 20px; /* Espacio para el botón de donaciones */
 }
 
 select {
@@ -71,6 +72,24 @@ select {
   font-weight: bold;
   font-size: 1.1rem;
   cursor: pointer;
+}
+
+/* Estilos para el botón de donaciones */
+#donateBtn {
+  background: none;
+  border: 1px solid var(--neon);
+  color: var(--neon);
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: auto; /* Empuja el botón hacia la parte inferior */
+  margin-bottom: 20px;
+  transition: background-color 0.3s;
+}
+
+#donateBtn:hover {
+  background-color: rgba(0, 255, 136, 0.1);
 }
 
 #scanner-container {
