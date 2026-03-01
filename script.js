@@ -3,7 +3,6 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const statusMsg = document.getElementById("status-msg");
 
-// BASE DE DATOS ACTUALIZADA SEGÚN TUS RANGOS
 const baseDatosIlegal = {
   10: [
     [067250001, 067700000], [069050001, 069500000], [069500001, 069950000],
@@ -38,7 +37,6 @@ document.getElementById("scanBtn").onclick = async () => {
     video.srcObject = stream;
     track = stream.getVideoTracks()[0];
 
-    // ENCENDER FLASH AUTOMÁTICO
     const capabilities = track.getCapabilities();
     if (capabilities.torch) {
       await track.applyConstraints({ advanced: [{ torch: true }] });
@@ -58,31 +56,27 @@ async function procesarFrame() {
   const vH = video.videoHeight;
   if (vW === 0) { requestAnimationFrame(procesarFrame); return; }
 
-  // Canvas de alta definición para el recorte
   canvas.width = 1000;
   canvas.height = 200;
 
-  // RECORTE ENFOCADO: Zoom al margen central
   ctx.drawImage(video, vW * 0.1, vH * 0.42, vW * 0.8, vH * 0.15, 0, 0, 1000, 200);
 
-  // FILTRO DE NITIDEZ (Binarización agresiva)
   let imgData = ctx.getImageData(0, 0, 1000, 200);
   let d = imgData.data;
   for (let i = 0; i < d.length; i += 4) {
     let gray = (d[i] + d[i+1] + d[i+2]) / 3;
-    let v = gray < 120 ? 0 : 255; // Números negros, fondo blanco
+    let v = gray < 120 ? 0 : 255;
     d[i] = d[i+1] = d[i+2] = v;
   }
   ctx.putImageData(imgData, 0, 0);
 
-  // RECONOCIMIENTO CON TESSERACT
   const { data: { text } } = await Tesseract.recognize(canvas, 'eng', {
     tessedit_char_whitelist: '0123456789AB',
     tessedit_pageseg_mode: '7'
   });
 
   const limpio = text.toUpperCase().replace(/[^0-9AB]/g, "");
-  const match = limpio.match(/(\d{8,9})([AB])/); // Acepta 8 o 9 dígitos por si hay cortes
+  const match = limpio.match(/(\d{8,9})([AB])/);
 
   if (match) {
     ejecutarVerificacion(match[1] + match[2], parseInt(match[1]), match[2]);
@@ -104,7 +98,6 @@ function ejecutarVerificacion(serieFull, numero, letra) {
     ilegal = baseDatosIlegal[denominacion].some(([min, max]) => numero >= min && numero <= max);
   }
 
-  // MOSTRAR MODAL EN LUGAR DE ALERT
   const modal = document.getElementById("custom-modal");
   const mTitle = document.getElementById("modal-title");
   const mText = document.getElementById("modal-text");
@@ -118,8 +111,9 @@ function ejecutarVerificacion(serieFull, numero, letra) {
   if (navigator.vibrate) navigator.vibrate(ilegal ? [200, 100, 200] : 100);
 
   document.getElementById("modal-close").onclick = () => {
-    location.reload(); // Recargar al cerrar para volver a escanear
+    location.reload();
   };
 }
+
 
 
