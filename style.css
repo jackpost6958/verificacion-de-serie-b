@@ -20,12 +20,10 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between; /* Espacia el contenido */
+  justify-content: space-between;
   height: 100vh;
   text-align: center;
 }
-
-header { margin-top: 20px; }
 
 header h1 {
   font-size: 1.8rem;
@@ -37,7 +35,7 @@ header h1 {
   font-size: 0.75rem;
   color: #888;
   max-width: 300px;
-  margin: 10px auto;
+  margin-top: 10px;
 }
 
 .setup-card {
@@ -71,21 +69,20 @@ select {
   cursor: pointer;
 }
 
-/* Estilo del Botón de Donaciones */
-#donateBtn {
+.donate-link {
   text-decoration: none;
   color: var(--neon);
-  font-size: 0.9rem;
-  padding: 12px 24px;
   border: 1px solid var(--neon);
+  padding: 12px 20px;
   border-radius: 30px;
+  font-size: 0.9rem;
   margin-bottom: 30px;
-  transition: all 0.3s;
+  transition: 0.3s;
 }
 
-#donateBtn:active {
+.donate-link:active {
   background: var(--neon);
-  color: #000;
+  color: black;
 }
 
 #scanner-container {
@@ -131,7 +128,7 @@ video { width: 100%; height: 100%; object-fit: cover; }
 
 @keyframes scanAnim { 0% { top: 0; } 100% { top: 100%; } }
 
-#status-msg { margin-top: 20px; font-size: 0.9rem; color: var(--neon); }
+#status-msg { margin-top: 20px; color: var(--neon); font-size: 0.9rem; }
 
 #closeBtn {
   position: absolute;
@@ -149,7 +146,7 @@ video { width: 100%; height: 100%; object-fit: cover; }
 #custom-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.9);
+  background: rgba(0,0,0,0.95);
   display: flex;
   align-items: center;
   justify-content: center;
