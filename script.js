@@ -10,79 +10,79 @@ const rangos = {
 };
 
 let scanning = false;
-let lecturasConfirmadas = {}; // Para el sistema de votos
+let votos = {}; 
 
 document.getElementById("scanBtn").onclick = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } } 
+      video: { facingMode: "environment", width: { ideal: 1920 } } 
     });
     video.srcObject = stream;
     document.getElementById("main-ui").hidden = true;
     document.getElementById("scanner-container").hidden = false;
     scanning = true;
-    lecturasConfirmadas = {}; 
-    procesarCiclo();
-  } catch (e) { alert("Error de cámara. Use HTTPS."); }
+    procesar();
+  } catch (e) { alert("Error al iniciar cámara."); }
 };
 
-async function procesarCiclo() {
+async function procesar() {
   if (!scanning) return;
 
   const vW = video.videoWidth;
   const vH = video.videoHeight;
   
-  // Aumentamos la resolución del canvas de procesamiento
-  canvas.width = 600; 
-  canvas.height = 120;
+  // Canvas más ancho para no cortar el primer dígito
+  canvas.width = 800; 
+  canvas.height = 150;
 
-  // Dibujamos el área central con un zoom ligero
-  ctx.drawImage(video, vW * 0.15, vH * 0.42, vW * 0.7, vH * 0.15, 0, 0, 600, 120);
+  // Tomamos un área un poco más amplia para asegurar que el primer dígito entre
+  ctx.drawImage(video, vW * 0.1, vH * 0.4, vW * 0.8, vH * 0.2, 0, 0, 800, 150);
 
-  // --- PROCESAMIENTO DE IMAGEN AVANZADO ---
-  let imgData = ctx.getImageData(0, 0, 600, 120);
+  // Procesamiento de imagen para resaltar texto negro sobre fondo de billete
+  let imgData = ctx.getImageData(0, 0, 800, 150);
   let d = imgData.data;
   for (let i = 0; i < d.length; i += 4) {
-    // Escala de grises pesada
-    let g = d[i] * 0.3 + d[i+1] * 0.59 + d[i+2] * 0.11;
-    // Umbral de binarización agresivo (ajustable)
-    let b = g < 130 ? 0 : 255; 
+    let brightness = (d[i] + d[i+1] + d[i+2]) / 3;
+    // Umbral más bajo para capturar dígitos delgados iniciales
+    let b = brightness < 110 ? 0 : 255; 
     d[i] = d[i+1] = d[i+2] = b;
   }
   ctx.putImageData(imgData, 0, 0);
 
-  // OCR con configuración de "solo números y letras mayúsculas"
   const { data: { text } } = await Tesseract.recognize(canvas, 'eng', {
     tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
   });
 
   const limpio = text.replace(/[^0-9A-Z]/g, "");
-  const match = limpio.match(/(\d{7,9})([AB])/);
+  
+  // EXPRESIÓN REGULAR ESTRICTA: 9 números seguidos de 1 letra A o B
+  const match = limpio.match(/(\d{9})([AB])/);
 
   if (match) {
-    const serie = match[1] + match[2];
+    const serieEncontrada = match[1] + match[2];
+    votos[serieEncontrada] = (votos[serieEncontrada] || 0) + 1;
     
-    // SISTEMA DE VOTOS: Requiere que la misma serie aparezca 3 veces
-    lecturasConfirmadas[serie] = (lecturasConfirmadas[serie] || 0) + 1;
-    statusMsg.innerText = `Confirmando... (${lecturasConfirmadas[serie]}/3)`;
+    statusMsg.innerText = `Serie detectada: ${serieEncontrada} (${votos[serieEncontrada]}/2)`;
 
-    if (lecturasConfirmadas[serie] >= 3) {
-      finalizarEscaneo(serie, parseInt(match[1]), match[2]);
+    if (votos[serieEncontrada] >= 2) {
+      verificarIlegalidad(serieEncontrada, parseInt(match[1]), match[2]);
       return;
     }
+  } else {
+    // Si detecta algo pero no tiene 9 dígitos, damos una pista visual
+    if (limpio.length > 0) statusMsg.innerText = "Alinee mejor el primer dígito...";
   }
 
-  // Reintento rápido si no hay coincidencia sólida
-  setTimeout(procesarCiclo, 300);
+  setTimeout(procesar, 400);
 }
 
-function finalizarEscaneo(serie, num, letra) {
+function verificarIlegalidad(serie, num, letra) {
   scanning = false;
-  if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-  
   const denom = document.getElementById("denominacion").value;
   let esIlegal = (letra === "B") && rangos[denom].some(([min, max]) => num >= min && num <= max);
 
-  alert(`${esIlegal ? '⚠️ SERIE ILEGAL' : '✅ SERIE LEGAL'}\n\nSerie: ${serie}\nValor: Bs. ${denom}`);
+  if (navigator.vibrate) navigator.vibrate(300);
+
+  alert(`${esIlegal ? '⚠️ SERIE INVÁLIDA (ILEGAL)' : '✅ SERIE VÁLIDA'}\n\nSerie: ${serie}\nDenominación: Bs. ${denom}`);
   location.reload();
 }
