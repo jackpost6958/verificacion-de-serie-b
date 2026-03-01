@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Detector de Billetes</title>
+  <title>Detector de Series Legales BOB</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="main-ui">
     <header>
-      <h1>Detector de Billetes</h1>
+      <h1>Detector de Series Legales BOB</h1>
       <p class="disclaimer">Uso informativo. No reemplaza plataformas oficiales.</p>
     </header>
 
@@ -40,5 +40,18 @@
   <canvas id="canvas" hidden></canvas>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="script.js"></script>
+
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00ff88">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(() => console.log("Servicio de App registrado correctamente."))
+      .catch((err) => console.log("Error al registrar App:", err));
+  }
+</script>
 </body>
 </html>
+
