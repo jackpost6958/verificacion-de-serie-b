@@ -13,7 +13,7 @@
 
   <div id="main-ui">
     <header>
-      <h1>Detector de Series BOB</h1>
+      <h1>Detector de Serie Ilegal</h1>
       <p class="disclaimer">Esta aplicación utiliza IA para detectar series. Verifique siempre el resultado visualmente.</p>
     </header>
 
@@ -26,6 +26,8 @@
       </select>
       <button id="scanBtn">Iniciar Escáner 📷</button>
     </div>
+
+    <button id="donateBtn">Apoyar con una Donación 🎁</button>
   </div>
 
   <div id="scanner-container" hidden>
@@ -49,6 +51,17 @@
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./service-worker.js').catch(err => console.log(err));
     }
+
+    // Lógica para descargar la imagen de donaciones
+    document.getElementById('donateBtn').addEventListener('click', function() {
+      // Crea un elemento 'a' temporalmente
+      var link = document.createElement('a');
+      link.href = 'donaciones.jpg'; // Ruta a la imagen
+      link.download = 'donaciones.jpg'; // Nombre con el que se descargará
+      document.body.appendChild(link);
+      link.click(); // Simula el clic
+      document.body.removeChild(link); // Elimina el elemento temporal
+    });
   </script>
 
   <div id="custom-modal" hidden>
@@ -61,4 +74,3 @@
   </div>
 </body>
 </html>
-
