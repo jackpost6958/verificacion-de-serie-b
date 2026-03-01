@@ -2,25 +2,37 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Validador de Series</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validador de Billetes</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="ui-container">
+    <h1>Detector de Validez de Billetes</h1>
+    <p class="disclaimer">Esta aplicación está en desarrollo y no es oficial, puede cometer errores, aunque funcione utilice plataformas oficiales para salir de dudas.</p>
+    
+    <div id="controls">
+      <button id="scanBtn">Iniciar Cámara</button>
+      <select id="denominacion">
+        <option value="10">Billete de 10</option>
+        <option value="20" selected>Billete de 20</option>
+        <option value="50">Billete de 50</option>
+      </select>
+    </div>
+  </div>
 
-  <button id="scanBtn">📷 Escanear con la cámara</button>
-  <button id="captureBtn" hidden>📸 Capturar</button>
+  <div id="scanner-container" hidden>
+    <video id="video" autoplay playsinline></video>
+    <div id="overlay">
+      <div id="guide-box">
+        <span class="label">Alinee la serie aquí</span>
+      </div>
+    </div>
+    <div id="status-msg">Buscando serie...</div>
+  </div>
 
-  <video id="video" autoplay playsinline hidden></video>
-  <div id="overlay">
-  <div id="scanArea"></div>
   <canvas id="canvas" hidden></canvas>
-
-  <!-- OCR GRATIS -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="script.js"></script>
-
 </body>
-
 </html>
-
