@@ -1,11 +1,9 @@
 const scanBtn = document.getElementById("scanBtn");
+const captureBtn = document.getElementById("captureBtn");
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-/* =========================
-   RANGOS DE SERIES ERRÓNEAS
-   ========================= */
 
 const rangos10 = [
   [67250001, 67700000],
@@ -57,26 +55,46 @@ const rangos50 = [
 /* ========================= */
 
 scanBtn.addEventListener("click", iniciarCamara);
+captureBtn.addEventListener("click", capturarImagen);
 
 async function iniciarCamara() {
   const stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: "environment" }
+    video: {
+      facingMode: "environment",
+      width: { ideal: 1920 },
+      height: { ideal: 1080 }
+    }
   });
 
   video.srcObject = stream;
   video.hidden = false;
-
-  setTimeout(() => capturarImagen(stream), 2000);
+  scanBtn.hidden = true;
+  captureBtn.hidden = false;
 }
 
-function capturarImagen(stream) {
+function capturarImagen() {
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0);
 
-  stream.getTracks().forEach(track => track.stop());
+  video.srcObject.getTracks().forEach(track => track.stop());
   video.hidden = true;
+  captureBtn.hidden = true;
 
+  preprocesarImagen();
+}
+
+function preprocesarImagen() {
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const gray = data[i] * 0.3 + data[i + 1] * 0.59 + data[i + 2] * 0.11;
+    const bin = gray > 150 ? 255 : 0;
+    data[i] = data[i + 1] = data[i + 2] = bin;
+  }
+
+  ctx.putImageData(imageData, 0, 0);
   reconocerTexto();
 }
 
@@ -84,38 +102,39 @@ async function reconocerTexto() {
   const { data: { text } } = await Tesseract.recognize(
     canvas,
     "eng",
-    { logger: () => {} }
+    {
+      tessedit_char_whitelist: "0123456789B",
+      logger: () => {}
+    }
   );
 
   const limpio = text.replace(/\s/g, "").toUpperCase();
-  const regex = /\d{8,9}B|\d{8,9}[A-Z]/;
-  const match = limpio.match(regex);
+  const match = limpio.match(/\d{8,9}B/);
 
   if (!match) {
-    alert("❌ No se detectó un número de serie válido");
+    alert("❌ No se detectó el número de serie");
+    resetear();
     return;
   }
 
-  const serie = match[0];
-  preguntarBillete(serie);
+  preguntarBillete(match[0]);
 }
 
 function preguntarBillete(serie) {
   const opcion = prompt(
-    `Serie detectada: ${serie}\n\n¿De qué billete es?\nEscribe: 10, 20 o 50`
+    `Serie detectada: ${serie}\n\n¿Billete de 10, 20 o 50?`
   );
 
-  if (!opcion) return;
-
   const billete = parseInt(opcion);
-
   if (![10, 20, 50].includes(billete)) {
-    alert("❌ Opción inválida");
+    alert("❌ Billete inválido");
+    resetear();
     return;
   }
 
-  const resultado = validarSerie(serie, billete);
-  alert(resultado ? "✅ Serie verdadera" : "❌ Serie errónea");
+  const valida = validarSerie(serie, billete);
+  alert(valida ? "✅ Serie verdadera" : "❌ Serie errónea");
+  resetear();
 }
 
 function estaEnRango(numero, rangos) {
@@ -123,15 +142,17 @@ function estaEnRango(numero, rangos) {
 }
 
 function validarSerie(serie, billete) {
-  // Si NO termina en B, es válida automáticamente
   if (!serie.endsWith("B")) return true;
 
   const numero = parseInt(serie.slice(0, -1));
-  if (isNaN(numero)) return false;
 
   if (billete === 10) return !estaEnRango(numero, rangos10);
   if (billete === 20) return !estaEnRango(numero, rangos20);
   if (billete === 50) return !estaEnRango(numero, rangos50);
 
   return false;
+}
+
+function resetear() {
+  scanBtn.hidden = false;
 }
