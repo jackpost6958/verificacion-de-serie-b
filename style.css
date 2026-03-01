@@ -1,7 +1,6 @@
 :root {
   --neon: #00ff88;
   --bg: #0a0a0a;
-  --error: #ff4444;
   --glass: rgba(255, 255, 255, 0.05);
 }
 
@@ -21,23 +20,24 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between; /* Espacia el contenido */
   height: 100vh;
   text-align: center;
 }
+
+header { margin-top: 20px; }
 
 header h1 {
   font-size: 1.8rem;
   color: var(--neon);
   text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-  margin-bottom: 10px;
 }
 
 .disclaimer {
   font-size: 0.75rem;
   color: #888;
   max-width: 300px;
-  margin-bottom: 30px;
+  margin: 10px auto;
 }
 
 .setup-card {
@@ -48,7 +48,6 @@ header h1 {
   border: 1px solid rgba(255, 255, 255, 0.1);
   width: 100%;
   max-width: 350px;
-  margin-bottom: 20px; /* Espacio para el botón de donaciones */
 }
 
 select {
@@ -58,7 +57,6 @@ select {
   border: 1px solid #444;
   color: white;
   border-radius: 12px;
-  font-size: 1rem;
   margin-bottom: 20px;
 }
 
@@ -70,26 +68,24 @@ select {
   border: none;
   border-radius: 12px;
   font-weight: bold;
-  font-size: 1.1rem;
   cursor: pointer;
 }
 
-/* Estilos para el botón de donaciones */
+/* Estilo del Botón de Donaciones */
 #donateBtn {
-  background: none;
-  border: 1px solid var(--neon);
+  text-decoration: none;
   color: var(--neon);
-  padding: 10px 20px;
-  border-radius: 20px;
   font-size: 0.9rem;
-  cursor: pointer;
-  margin-top: auto; /* Empuja el botón hacia la parte inferior */
-  margin-bottom: 20px;
-  transition: background-color 0.3s;
+  padding: 12px 24px;
+  border: 1px solid var(--neon);
+  border-radius: 30px;
+  margin-bottom: 30px;
+  transition: all 0.3s;
 }
 
-#donateBtn:hover {
-  background-color: rgba(0, 255, 136, 0.1);
+#donateBtn:active {
+  background: var(--neon);
+  color: #000;
 }
 
 #scanner-container {
@@ -112,23 +108,17 @@ video { width: 100%; height: 100%; object-fit: cover; }
 
 #guide-box {
   width: 85%;
-  height: 100px;
+  height: 90px;
   position: relative;
   box-shadow: 0 0 0 5000px rgba(0, 0, 0, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
 }
 
-.corner {
-  position: absolute;
-  width: 25px;
-  height: 25px;
-  border: 4px solid var(--neon);
-}
-.tl { top: -4px; left: -4px; border-right: none; border-bottom: none; }
-.tr { top: -4px; right: -4px; border-left: none; border-bottom: none; }
-.bl { bottom: -4px; left: -4px; border-right: none; border-top: none; }
-.br { bottom: -4px; right: -4px; border-left: none; border-top: none; }
+.corner { position: absolute; width: 20px; height: 20px; border: 3px solid var(--neon); }
+.tl { top: -3px; left: -3px; border-right: none; border-bottom: none; }
+.tr { top: -3px; right: -3px; border-left: none; border-bottom: none; }
+.bl { bottom: -3px; left: -3px; border-right: none; border-top: none; }
+.br { bottom: -3px; right: -3px; border-left: none; border-top: none; }
 
 .scan-line {
   width: 100%;
@@ -136,29 +126,18 @@ video { width: 100%; height: 100%; object-fit: cover; }
   background: var(--neon);
   position: absolute;
   top: 0;
-  box-shadow: 0 0 15px var(--neon);
   animation: scanAnim 2s infinite linear;
 }
 
-@keyframes scanAnim {
-  0% { top: 0%; }
-  100% { top: 100%; }
-}
+@keyframes scanAnim { 0% { top: 0; } 100% { top: 100%; } }
 
-#status-msg {
-  margin-top: 30px;
-  background: rgba(0,0,0,0.8);
-  padding: 8px 20px;
-  border-radius: 20px;
-  border: 1px solid var(--neon);
-  font-size: 0.9rem;
-}
+#status-msg { margin-top: 20px; font-size: 0.9rem; color: var(--neon); }
 
 #closeBtn {
   position: absolute;
   top: 30px;
   right: 20px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255,255,255,0.2);
   border: none;
   color: white;
   width: 45px;
@@ -170,19 +149,18 @@ video { width: 100%; height: 100%; object-fit: cover; }
 #custom-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.95);
+  background: rgba(0,0,0,0.9);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  padding: 20px;
 }
 
 .modal-content {
   background: #1a1a1a;
   padding: 30px;
   border-radius: 24px;
-  width: 100%;
+  width: 90%;
   max-width: 400px;
   text-align: center;
   border: 2px solid var(--neon);
@@ -193,9 +171,9 @@ video { width: 100%; height: 100%; object-fit: cover; }
   color: #000;
   border: none;
   padding: 15px;
+  width: 100%;
   border-radius: 12px;
   font-weight: bold;
-  width: 100%;
   margin-top: 20px;
 }
 
