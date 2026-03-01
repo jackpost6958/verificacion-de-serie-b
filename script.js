@@ -3,7 +3,7 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const statusMsg = document.getElementById("status-msg");
 
-// CORRECCIÓN: Se eliminan ceros iniciales para evitar errores de sintaxis
+// CORRECCIÓN: Números sin ceros iniciales para evitar error Octal literal
 const baseDatosIlegal = {
   10: [
     [67250001, 67700000], [69050001, 69500000], [69500001, 69950000],
@@ -28,12 +28,12 @@ const baseDatosIlegal = {
 };
 
 let scanning = false;
-let streamInstance = null;
 let worker = null;
+let streamRef = null;
 
-async function initTesseract() {
+async function initWorker() {
   if (!worker) {
-    statusMsg.innerText = "Iniciando motor IA...";
+    statusMsg.innerText = "Iniciando motor...";
     worker = await Tesseract.createWorker('eng');
     await worker.setParameters({
       tessedit_char_whitelist: '0123456789AB',
@@ -44,30 +44,28 @@ async function initTesseract() {
 
 document.getElementById("scanBtn").onclick = async () => {
   try {
-    await initTesseract();
-    streamInstance = await navigator.mediaDevices.getUserMedia({ 
+    await initWorker();
+    streamRef = await navigator.mediaDevices.getUserMedia({ 
       video: { facingMode: "environment", width: { ideal: 1280 } } 
     });
-    video.srcObject = streamInstance;
+    video.srcObject = streamRef;
     document.getElementById("main-ui").hidden = true;
     document.getElementById("scanner-container").hidden = false;
     scanning = true;
     procesarFrame();
-  } catch (e) { alert("Error: Use HTTPS y permita el acceso a la cámara."); }
+  } catch (e) { alert("Error de cámara. Use HTTPS."); }
 };
 
 async function procesarFrame() {
   if (!scanning) return;
-
   const vW = video.videoWidth;
   const vH = video.videoHeight;
   if (vW === 0) { requestAnimationFrame(procesarFrame); return; }
 
-  canvas.width = 800;
-  canvas.height = 160;
-  // Ajuste de área de captura para mayor precisión
+  canvas.width = 800; canvas.height = 160;
   ctx.drawImage(video, vW * 0.1, vH * 0.4, vW * 0.8, vH * 0.2, 0, 0, 800, 160);
 
+  // Filtro de imagen para mejorar lectura
   let imgData = ctx.getImageData(0, 0, 800, 160);
   let d = imgData.data;
   for (let i = 0; i < d.length; i += 4) {
@@ -91,13 +89,9 @@ async function procesarFrame() {
 function verificar(serieFull, numero, letra) {
   scanning = false;
   const denom = document.getElementById("denominacion").value;
-  
-  if (streamInstance) {
-    streamInstance.getTracks().forEach(t => t.stop());
-  }
+  if (streamRef) streamRef.getTracks().forEach(t => t.stop());
 
   let esIlegal = false;
-  // Solo verificamos si termina en B
   if (letra === "B" && baseDatosIlegal[denom]) {
     esIlegal = baseDatosIlegal[denom].some(([min, max]) => numero >= min && numero <= max);
   }
@@ -106,9 +100,7 @@ function verificar(serieFull, numero, letra) {
   document.getElementById("modal-title").innerText = esIlegal ? "⚠️ SERIE NO VÁLIDA" : "✅ SERIE VÁLIDA";
   document.getElementById("modal-title").style.color = esIlegal ? "#ff4444" : "#00ff88";
   document.getElementById("modal-text").innerHTML = `Serie: <strong>${serieFull}</strong><br>Billete: Bs. ${denom}`;
-  
   modal.hidden = false;
-  if (navigator.vibrate) navigator.vibrate(esIlegal ? [200, 100, 200] : 100);
 }
 
 document.getElementById("modal-close").onclick = () => location.reload();
