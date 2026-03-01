@@ -27,7 +27,7 @@
       <button id="scanBtn">Iniciar Escáner 📷</button>
     </div>
 
-    <button id="donateBtn">Apoyar con una Donación 🎁</button>
+    <a href="donaciones.jpg" download="donaciones.jpg" id="donateBtn">Apoyar con una Donación 🎁</a>
   </div>
 
   <div id="scanner-container" hidden>
@@ -38,7 +38,7 @@
         <div class="corner bl"></div><div class="corner br"></div>
         <div class="scan-line"></div>
       </div>
-      <p id="status-msg">Cargando IA...</p>
+      <p id="status-msg">Cargando cámara...</p>
     </div>
     <button id="closeBtn">✖</button>
   </div>
@@ -51,24 +51,13 @@
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./service-worker.js').catch(err => console.log(err));
     }
-
-    // Lógica para descargar la imagen de donaciones
-    document.getElementById('donateBtn').addEventListener('click', function() {
-      // Crea un elemento 'a' temporalmente
-      var link = document.createElement('a');
-      link.href = 'donaciones.jpg'; // Ruta a la imagen
-      link.download = 'donaciones.jpg'; // Nombre con el que se descargará
-      document.body.appendChild(link);
-      link.click(); // Simula el clic
-      document.body.removeChild(link); // Elimina el elemento temporal
-    });
   </script>
 
   <div id="custom-modal" hidden>
     <div class="modal-content">
       <h2 id="modal-title">Resultado</h2>
       <p id="modal-text"></p>
-      <p class="modal-instruction">Compare la serie detectada con el billete físico.</p>
+      <p class="modal-instruction">Verifique que la serie detectada sea igual a la del billete.</p>
       <button id="modal-close">Escanear otro</button>
     </div>
   </div>
